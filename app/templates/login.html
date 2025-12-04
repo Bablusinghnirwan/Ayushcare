@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    /* --- HIDE SIDEBAR AND USE FULL PAGE --- */
+    .sidebar { display: none !important; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
+
+    /* --- LOGIN PAGE CONTAINER --- */
+    .login-container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+    }
+
+    /* --- LEFT BRANDING PANEL --- */
+    .login-branding {
+        width: 45%;
+        background-color: #704a41;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 40px;
+        animation: slideInLeft 0.8s ease-out;
+    }
+    
+    /* ===== YEH NAYI STYLING ADD HUI HAI ===== */
+    .login-branding .logo {
+        max-width: 120px; /* Aap size yahan se control kar sakte hain */
+        margin-bottom: 1.5rem;
+    }
+    /* ======================================== */
+
+    .login-branding h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .login-branding p {
+        font-size: 1.2rem;
+        opacity: 0.8;
+    }
+
+    /* --- RIGHT FORM PANEL --- */
+    .login-form-area {
+        width: 55%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        background-color: #fdfdfd;
+        animation: fadeIn 1s ease-in-out;
+    }
+    .login-form-box {
+        max-width: 400px;
+        width: 100%;
+    }
+    .login-form-box h2 {
+        font-weight: 700;
+        color: var(--ayush-text);
+        margin-bottom: 1rem;
+    }
+    .login-form-box .text-muted {
+        margin-bottom: 2.5rem;
+    }
+
+    /* --- CUSTOM FORM INPUTS WITH ICONS --- */
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+    }
+    .input-group .form-control,
+    .input-group .form-select {
+        padding-left: 40px;
+        height: 50px;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+    }
+
+    .sub-links { margin-top: 2rem; text-align: center; }
+    .sub-links a {
+        color: var(--ayush-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    .sub-links a:hover { color: #333; }
+
+    /* --- ANIMATIONS --- */
+    @keyframes slideInLeft {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* --- RESPONSIVE DESIGN --- */
+    @media (max-width: 768px) {
+        .login-branding {
+            display: none;
+        }
+        .login-form-area {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="login-container">
+    <div class="login-branding">
+        <img src="{{ url_for('static', filename='records/img/logo.png') }}" alt="AyushCare Logo" class="logo">
+        
+        <h1>AyushCare</h1>
+        <p>Your Personal Health Companion</p>
+    </div>
+
+    <div class="login-form-area">
+        <div class="login-form-box">
+            <h2>Login to Your Account</h2>
+            <p class="text-muted">Select your role and enter your details to continue.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="post">
+                <div class="input-group">
+                    <i class="fas fa-users"></i>
+                    <select name="user_type" class="form-select" required>
+                        <option value="patient">I am a Patient</option>
+                        <option value="doctor">I am a Doctor</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" name="email" class="form-control" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Login</button>
+            </form>
+
+            <div class="sub-links">
+                <p>New patient? <a href="{{ url_for('auth.signup') }}">Register here</a>.</p>
+                <p>New doctor? <a href="{{ url_for('auth.doctor_signup') }}">Register here</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

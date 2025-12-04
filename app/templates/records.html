@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-8">
+    <h2 class="text-4xl font-bold text-white"><i class="fas fa-file-medical-alt mr-3"></i>My Medical Records</h2>
+    <p class="text-gray-400 mt-2">A complete history of all your medical consultations.</p>
+</div>
+
+<div class="glass-card">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-gray-300">
+            <thead class="text-xs text-gray-400 uppercase bg-white/5">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Date</th>
+                    <th scope="col" class="px-6 py-3">Doctor</th>
+                    <th scope="col" class="px-6 py-3">Symptoms</th>
+                    <th scope="col" class="px-6 py-3">Diagnosis</th>
+                    <th scope="col" class="px-6 py-3">Prescription</th>
+                    <th scope="col" class="px-6 py-3">Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if records %}
+                    {% for record in records %}
+                    <tr class="border-b border-white/10 hover:bg-white/5">
+                        <td class="px-6 py-4 font-semibold">{{ record.record_date.strftime('%d %b %Y') }}</td>
+                        <td class="px-6 py-4">Dr. {{ record.doctor.name }}</td>
+                        <td class="px-6 py-4">{{ record.symptoms or "N/A" }}</td>
+                        <td class="px-6 py-4">{{ record.diagnosis or "N/A" }}</td>
+                        <td class="px-6 py-4">{{ record.prescription or "N/A" }}</td>
+                        <td class="px-6 py-4">
+                            {% if record.report_file %}
+                                <a href="{{ url_for('static', filename='health_reports/' + record.report_file) }}" target="_blank" class="text-cyan-400 hover:text-cyan-300">View File</a>
+                            {% else %}
+                                <span class="text-gray-500">No File</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">You have no medical records yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

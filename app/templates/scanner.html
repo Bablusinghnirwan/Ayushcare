@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    .drop-zone { 
+        border: 2px dashed rgba(255, 255, 255, 0.2); 
+        transition: all 0.2s ease; 
+    }
+    .drop-zone--over { 
+        border-style: solid; 
+        border-color: #2dd4bf; /* Teal color for highlight */
+        background-color: rgba(45, 212, 191, 0.1); 
+    }
+    .drop-zone__input { 
+        display: none; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="glass-card">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white">Ingredient Safety Scanner</h1>
+            <p class="text-gray-400 mt-2">Upload a picture of a product's ingredients label.</p>
+        </div>
+        
+        <div id="dropZone" class="w-full p-8 text-center rounded-xl cursor-pointer">
+            <input type="file" id="fileInput" class="drop-zone__input" accept="image/*">
+            <div id="uploadPrompt">
+                <svg class="w-12 h-12 mx-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <p class="mt-3 text-gray-300 font-semibold">Click to select or <span class="text-cyan-400">drag and drop</span> an image</p>
+                <p class="text-sm text-gray-500 mt-1">PNG, JPG, or JPEG</p>
+            </div>
+            <div id="imagePreviewContainer" class="hidden relative">
+                <img id="imagePreview" src="" alt="Image Preview" class="max-h-48 mx-auto rounded-lg shadow-md">
+                <button id="removeImageBtn" class="absolute -top-2 -right-2 bg-gray-800 rounded-full p-1 shadow-md text-gray-400 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div id="resultArea" class="mt-6 text-center">
+            <div id="spinner" class="hidden">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-300 mx-auto"></div>
+                <p class="mt-3 text-gray-400 animate-pulse">Analyzing ingredients...</p>
+            </div>
+            <div id="analysisResult" class="hidden"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const API_ENDPOINT = "{{ url_for('main.analyze_ingredients_api') }}";
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const spinner = document.getElementById('spinner');
+    const analysisResult = document.getElementById('analysisResult');
+    let selectedFile = null;
+
+    function resetUI() {
+        fileInput.value = "";
+        selectedFile = null;
+        uploadPrompt.classList.remove('hidden');
+        imagePreviewContainer.classList.add('hidden');
+        imagePreview.setAttribute('src', '');
+        analysisResult.classList.add('hidden');
+        spinner.classList.add('hidden');
+        analysisResult.innerHTML = '';
+    }
+
+    function handleFileSelect(file) {
+        if (file && file.type.startsWith('image/')) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                uploadPrompt.classList.add('hidden');
+                imagePreviewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+            analyzeImage();
+        } else {
+            alert("Please select a valid image file (PNG, JPG, etc.).");
+            resetUI();
+        }
+    }
+
+    async function analyzeImage() {
+        if (!selectedFile) {
+            alert("Please select an image first.");
+            return;
+        }
+        spinner.classList.remove('hidden');
+        analysisResult.classList.add('hidden');
+        analysisResult.innerHTML = '';
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (!response.ok) { throw new Error(data.error || 'An unknown error occurred.'); }
+            displayResults(data);
+        } catch (error) {
+            displayError(error.message);
+        } finally {
+            spinner.classList.add('hidden');
+        }
+    }
+    
+    function displayResults(data) {
+        const analysis = data.health_analysis;
+        const patientName = data.patient_name;
+    
+        if (analysis.error) {
+            displayError(analysis.error);
+            return;
+        }
+    
+        let statusColorClass, statusIcon;
+    
+        switch(analysis.status) {
+            case 'Safe':
+                statusColorClass = 'bg-green-500/10 border-green-500/30 text-green-300';
+                statusIcon = '✅';
+                break;
+            case 'Eat in Moderation':
+                statusColorClass = 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300';
+                statusIcon = '⚠️';
+                break;
+            case 'Not Recommended':
+                statusColorClass = 'bg-red-500/10 border-red-500/30 text-red-300';
+                statusIcon = '❌';
+                break;
+            default:
+                statusColorClass = 'bg-gray-500/10 border-gray-500/30 text-gray-300';
+        }
+    
+        let resultHTML = `
+            <div class="flex items-center mb-1">
+                <span class="text-2xl mr-3">${statusIcon}</span>
+                <h3 class="text-xl font-bold text-white">${analysis.status}</h3>
+            </div>
+            <p class="text-sm font-semibold text-gray-400 mb-3">Analysis for: ${patientName}</p>
+            <p class="text-sm text-gray-300 mb-4">${analysis.reason}</p>
+        `;
+    
+        if (analysis.risky_ingredients && analysis.risky_ingredients.length > 0) {
+            resultHTML += `<div class="mb-3"><h4 class="font-semibold text-sm text-gray-300">Potentially Risky Ingredients:</h4><div class="flex flex-wrap gap-2 mt-2">
+                ${analysis.risky_ingredients.map(ing => `<span class="bg-red-500/20 text-red-300 text-xs font-medium px-2.5 py-0.5 rounded-full">${ing}</span>`).join('')}
+            </div></div>`;
+        }
+    
+        if (analysis.suggestions && analysis.suggestions.length > 0) {
+            resultHTML += `<div><h4 class="font-semibold text-sm text-gray-300">Healthier Alternatives:</h4>
+                <p class="text-sm italic text-gray-400">${analysis.suggestions.join(', ')}</p></div>`;
+        }
+    
+        analysisResult.className = `text-left p-5 rounded-lg border ${statusColorClass}`;
+        analysisResult.innerHTML = resultHTML;
+        analysisResult.classList.remove('hidden');
+    }
+    
+    function displayError(message) {
+         const errorHTML = `<div class="flex items-center mb-2"><span class="text-xl mr-2">🚨</span><h3 class="text-xl font-bold text-red-300">Analysis Failed</h3></div><p class="text-sm text-gray-300">${message}</p>`;
+        analysisResult.className = 'text-left p-5 rounded-lg border bg-red-500/10 border-red-500/30';
+        analysisResult.innerHTML = errorHTML;
+        analysisResult.classList.remove('hidden');
+    }
+
+    // --- EVENT LISTENERS ---
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFileSelect(fileInput.files[0]); });
+    removeImageBtn.addEventListener('click', (e) => { e.stopPropagation(); resetUI(); });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--over'); });
+    ['dragleave', 'dragend'].forEach(type => { dropZone.addEventListener(type, () => dropZone.classList.remove('drop-zone--over'))});
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--over'); if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; handleFileSelect(e.dataTransfer.files[0]); }});
+</script>
+{% endblock %}

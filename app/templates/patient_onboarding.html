@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    /* Hide the sidebar for the onboarding process */
+    .sidebar { display: none !important; }
+    .main-content { margin-left: 0 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-lg">
+        <div class="glass-card">
+            {% if step == 1 %}
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white">Welcome to Vaidyashri!</h2>
+                <p class="text-gray-400 mt-2">Let's set up your health profile. (Step 1 of 2)</p>
+            </div>
+            
+            <form action="{{ url_for('patient.onboarding', step=1) }}" method="post" class="mt-8 space-y-4">
+                <h5 class="font-semibold text-white">Basic Information</h5>
+                <div><label class="block text-sm font-medium text-gray-300">Blood Group</label><input type="text" name="blood_group" class="form-control-glass mt-1 block w-full rounded-md" placeholder="e.g., O+"></div>
+                <div><label class="block text-sm font-medium text-gray-300">Height (in cm)</label><input type="number" name="height" class="form-control-glass mt-1 block w-full rounded-md" placeholder="e.g., 175"></div>
+                <div><label class="block text-sm font-medium text-gray-300">Weight (in kg)</label><input type="number" name="weight" class="form-control-glass mt-1 block w-full rounded-md" placeholder="e.g., 70"></div>
+                <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">Next Step &rarr;</button>
+            </form>
+
+            {% elif step == 2 %}
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white">Almost Done!</h2>
+                <p class="text-gray-400 mt-2">Just a little more about your medical history. (Step 2 of 2)</p>
+            </div>
+
+            <form action="{{ url_for('patient.onboarding', step=2) }}" method="post" class="mt-8 space-y-4">
+                <h5 class="font-semibold text-white">Medical History</h5>
+                <div><label class="block text-sm font-medium text-gray-300">Allergies</label><textarea name="allergies" class="form-control-glass mt-1 block w-full rounded-md" rows="3" placeholder="e.g., Peanuts, Pollen, Dust"></textarea></div>
+                <div><label class="block text-sm font-medium text-gray-300">Chronic Diseases</label><textarea name="chronic_diseases" class="form-control-glass mt-1 block w-full rounded-md" rows="3" placeholder="e.g., Diabetes, Hypertension, Asthma"></textarea></div>
+                <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">Finish & Go to My Profile</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

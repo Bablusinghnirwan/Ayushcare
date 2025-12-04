@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaidyashri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #111827; /* Darker background */
+        }
+        #aurora-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background-color: #111827; overflow: hidden;
+        }
+        .aurora-dot {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); opacity: 0.4; /* Slightly less opaque */
+        }
+        #aurora-bg .aurora-dot:nth-child(1) { width: 400px; height: 400px; background: #0891b2; animation: move-aurora-1 25s linear infinite; } /* Cyan */
+        #aurora-bg .aurora-dot:nth-child(2) { width: 350px; height: 350px; background: #059669; animation: move-aurora-2 30s linear infinite; } /* Emerald */
+        #aurora-bg .aurora-dot:nth-child(3) { width: 300px; height: 300px; background: #4f46e5; animation: move-aurora-3 20s linear infinite; } /* Indigo */
+        
+        @keyframes move-aurora-1 { 0%{transform:translate(10vw,80vh)}25%{transform:translate(80vw,20vh) scale(.8)}50%{transform:translate(50vw,90vh)}75%{transform:translate(10vw,10vh) scale(1.2)}100%{transform:translate(10vw,80vh)} }
+        @keyframes move-aurora-2 { 0%{transform:translate(80vw,90vh)}25%{transform:translate(10vw,30vh) scale(1.1)}50%{transform:translate(40vw,5vh)}75%{transform:translate(90vw,60vh) scale(.9)}100%{transform:translate(80vw,90vh)} }
+        @keyframes move-aurora-3 { 0%{transform:translate(50vw,10vh)}25%{transform:translate(20vw,90vh) scale(.7)}50%{transform:translate(90vw,50vh)}75%{transform:translate(40vw,20vh) scale(1.1)}100%{transform:translate(50vw,10vh)} }
+        
+        /* --- Collapsible Sidebar Styling --- */
+        .sidebar { width: 80px; transition: width 0.3s ease; } /* Collapsed width */
+        .sidebar:hover { width: 256px; } /* Expanded width */
+        .sidebar .link-text { transition: opacity 0.2s ease 0.1s, visibility 0.2s ease 0.1s; opacity: 0; visibility: hidden; } /* Hide text */
+        .sidebar:hover .link-text { opacity: 1; visibility: visible; } /* Show text on hover */
+        .main-content { transition: margin-left 0.3s ease; margin-left: 80px; } /* Adjust content margin */
+        .sidebar:hover ~ .main-content { margin-left: 256px; } /* Adjust content margin on hover */
+        /* --- End Sidebar Styling --- */
+
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1.5rem; }
+        .form-control-glass { background-color: rgba(255, 255, 255, 0.05) !important; color: #d1d5db !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 0.5rem; }
+        .form-control-glass::placeholder { color: #6b7280 !important; }
+        .form-control-glass:focus { background-color: rgba(255, 255, 255, 0.08) !important; border-color: rgba(59, 130, 246, 0.5) !important; box-shadow: none !important; outline: none !important; }
+
+        /* Sidebar Link Styling */
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1.25rem; text-decoration: none; color: #d1d5db; border-radius: 0.5rem; margin: 0.125rem 0; transition: all 0.2s ease-in-out; overflow: hidden; /* Prevent text overflow */ }
+        .nav-link:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .nav-link.active { background-color: rgba(59, 130, 246, 0.3); color: #ffffff; font-weight: 600; }
+        .nav-link i { width: 1.25rem; text-align: center; flex-shrink: 0; /* Prevent icon shrinking */ }
+        .nav-link .link-text { margin-left: 0.75rem; white-space: nowrap; font-weight: 500; }
+
+        /* Chat History Submenu Styling */
+         #chat-history-submenu { max-height: calc(100vh - 160px); /* Adjust max height */ }
+         #chat-history-submenu::-webkit-scrollbar { width: 5px; }
+         #chat-history-submenu::-webkit-scrollbar-track { background: transparent; }
+         #chat-history-submenu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body class="text-gray-300">
+
+    <div id="aurora-bg">
+        <div class="aurora-dot"></div>
+        <div class="aurora-dot"></div>
+        <div class="aurora-dot"></div>
+    </div>
+
+    <div class="app-layout flex">
+        {% if session.get('user_id') %}
+        <nav class="sidebar fixed top-0 left-0 h-screen bg-gray-900/70 backdrop-blur-lg border-r border-white/10 flex flex-col z-50 overflow-hidden">
+             <a href="{{ url_for('main.home') }}" class="flex items-center justify-center h-20 text-white no-underline flex-shrink-0">
+                <svg class="h-8 w-8 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                <span class="link-text text-xl font-bold ml-3 whitespace-nowrap opacity-0 invisible">Vaidyashri</span>
+            </a>
+            
+            
+            <ul class="list-none p-2 m-0 mt-4 space-y-1 flex-grow overflow-y-auto">
+                {% if session.get('user_type') == 'doctor' %}
+                    <li><a href="{{ url_for('doctor.dashboard') }}" class="nav-link {% if request.endpoint == 'doctor.dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i><span class="link-text">Dashboard</span></a></li>
+                    <li><a href="{{ url_for('doctor.appointments') }}" class="nav-link {% if request.endpoint == 'doctor.appointments' %}active{% endif %}"><i class="fas fa-calendar-check"></i><span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('doctor.search_patient') }}" class="nav-link {% if request.endpoint == 'doctor.search_patient' %}active{% endif %}"><i class="fas fa-search"></i><span class="link-text">Search Patient</span></a></li>
+                    <li><a href="{{ url_for('doctor.manage_conditions') }}" class="nav-link {% if request.endpoint == 'doctor.manage_conditions' %}active{% endif %}"><i class="fas fa-notes-medical"></i><span class="link-text">Manage Conditions</span></a></li>
+                    <li><a href="{{ url_for('doctor.profile') }}" class="nav-link {% if request.endpoint == 'doctor.profile' %}active{% endif %}"><i class="fas fa-user-md"></i><span class="link-text">My Profile</span></a></li>
+                {% else %}
+                    <li><a href="{{ url_for('patient.dashboard') }}" class="nav-link {% if request.endpoint == 'patient.dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i><span class="link-text">Dashboard</span></a></li>
+                    <li><a href="{{ url_for('main.book_appointment') }}" class="nav-link {% if request.endpoint == 'main.book_appointment' %}active{% endif %}"><i class="fas fa-calendar-plus"></i><span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('main.medical_records') }}" class="nav-link {% if request.endpoint == 'main.medical_records' %}active{% endif %}"><i class="fas fa-file-medical"></i><span class="link-text">My Records</span></a></li>
+                    <li><a href="{{ url_for('patient.profile') }}" class="nav-link {% if request.endpoint == 'patient.profile' %}active{% endif %}"><i class="fas fa-user-circle"></i><span class="link-text">My Profile</span></a></li>
+                    <li class="relative">
+                        <a href="#" id="chat-history-toggle" class="nav-link">
+                            <i class="fas fa-history"></i><span class="link-text">Chat History</span>
+                        </a>
+                        <div id="chat-history-submenu" class="hidden absolute left-full top-0 mt-0 w-64 bg-gray-800/90 backdrop-blur-md rounded-r-lg shadow-lg border border-white/10 z-60 overflow-hidden max-h-[calc(100vh-150px)] overflow-y-auto">
+                           <div class="p-2 space-y-1">
+                               <a href="{{ url_for('patient.new_chat') }}" class="block px-3 py-2 text-sm text-green-400 hover:bg-white/10 rounded-md no-underline font-semibold"><i class="fas fa-plus mr-2"></i>New Chat</a>
+                               <hr class="border-white/10 my-1">
+                               {% for session_item in chat_sessions %} {# Yeh variable backend se aayega #}
+                               <a href="{{ url_for('patient.load_chat', session_id=session_item.id) }}" class="block px-3 py-2 text-sm text-gray-300 hover:bg-white/10 rounded-md no-underline truncate {% if session_item.id == session.get('current_chat_session_id') %}bg-blue-600/30 font-semibold text-white{% endif %}" title="{{ session_item.title or 'Chat from ' + session_item.start_time.strftime('%d %b') }}">
+                                   {{ session_item.title if session_item.title != 'New Chat' else (session_item.messages.first().message[:30] + '...' if session_item.messages.first() else 'New Chat') }}
+                               </a>
+                               {% else %}
+                               <p class="px-3 py-2 text-sm text-gray-500">No history</p>
+                               {% endfor %}
+                           </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="p-2 mt-auto flex-shrink-0">
+                 <a href="{{ url_for('auth.logout') }}" class="nav-link"><i class="fas fa-sign-out-alt"></i><span class="link-text">Logout</span></a>
+            </div>
+        </nav>
+        {% endif %}
+        
+        <main class="main-content flex-grow p-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+        const chatHistoryToggle = document.getElementById('chat-history-toggle');
+        const chatHistorySubmenu = document.getElementById('chat-history-submenu');
+        const sidebar = document.querySelector('.sidebar');
+        let submenuOpen = false;
+
+        if (chatHistoryToggle && chatHistorySubmenu) {
+            chatHistoryToggle.addEventListener('click', (event) => {
+                event.preventDefault();
+                submenuOpen = !submenuOpen;
+                if (submenuOpen) {
+                    chatHistorySubmenu.classList.remove('hidden');
+                    sidebar.classList.add('overflow-visible'); // Allow submenu to overflow
+                } else {
+                    chatHistorySubmenu.classList.add('hidden');
+                     sidebar.classList.remove('overflow-visible');
+                }
+            });
+
+            // Close submenu if clicking outside
+            document.addEventListener('click', (event) => {
+                if (!sidebar.contains(event.target) && submenuOpen) {
+                    submenuOpen = false;
+                    chatHistorySubmenu.classList.add('hidden');
+                    sidebar.classList.remove('overflow-visible');
+                }
+            });
+            // Prevent closing when clicking inside submenu
+             chatHistorySubmenu.addEventListener('click', (event) => {
+                 event.stopPropagation();
+             });
+        }
+    </script>
+     <style>
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1.25rem; text-decoration: none; color: #d1d5db; border-radius: 0.5rem; margin: 0.125rem 0; transition: all 0.2s ease-in-out; }
+        .nav-link:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .nav-link.active { background-color: rgba(59, 130, 246, 0.3); color: #ffffff; font-weight: 600; }
+        .nav-link i { width: 1.25rem; text-align: center; }
+        .nav-link .link-text { margin-left: 0.75rem; white-space: nowrap; font-weight: 500; opacity: 0; visibility: hidden; } /* Start hidden */
+    </style>
+</body>
+</html>

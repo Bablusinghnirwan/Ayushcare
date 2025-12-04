@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-8">
+    <h2 class="text-4xl font-bold text-white">🌿 Diet Advisor</h2>
+    <p class="text-gray-400 mt-2">Enter your disease and optional medicine to get AI-powered diet advice.</p>
+</div>
+
+<div class="glass-card max-w-3xl mx-auto">
+    <div class="flex justify-end mb-6">
+        <select id="language-switcher" class="form-control-glass rounded-md">
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+        </select>
+    </div>
+
+    <div class="space-y-6">
+        <div>
+            <label for="diseaseInput" class="block text-sm font-medium text-gray-300 mb-1" id="label-disease">Disease <span class="text-red-400">*</span></label>
+            <input type="text" id="diseaseInput" class="form-control-glass w-full p-3 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="Example: Dengue fever">
+        </div>
+        <div>
+            <label for="medicineInput" class="block text-sm font-medium text-gray-300 mb-1" id="label-medicine">Medicine - Optional</label>
+            <input type="text" id="medicineInput" class="form-control-glass w-full p-3 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="Example: paracetamol">
+        </div>
+    </div>
+
+    <button id="getAdviceBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition-colors mt-8 flex items-center justify-center">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.044M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="button-text">Get Personalized Advice</span>
+    </button>
+
+    <div id="loader" class="text-center my-8 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-300 mx-auto"></div>
+        <p class="text-cyan-300 mt-4 text-lg font-medium" id="loader-text">Getting expert advice from AI...</p>
+    </div>
+    
+    <div id="results" class="mt-10"></div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // --- LANGUAGE DATA ---
+    const translations = {
+        en: {
+            title: 'Diet Advisor 🌿',
+            subtitle: 'Enter your disease and medicine to get advice.',
+            labelDisease: 'Disease ',
+            labelMedicine: 'Medicine - Optional',
+            placeholderDisease: 'Example: Dengue fever',
+            placeholderMedicine: 'Example: paracetamol',
+            buttonText: 'Get Personalized Advice',
+            loaderText: 'Getting compatible expert advice from AI...',
+            resultsDisclaimer: 'Disclaimer: This advice is AI-generated and for informational purposes only. Always consult a qualified medical professional for personalized dietary and medical advice.',
+            recommendedTitle: 'Recommended Foods (Khana Chahiye)',
+            avoidTitle: 'Foods to Avoid (Nahi Khana Chahiye)',
+            errorNoDisease: 'Please enter a disease name to get advice.',
+            errorApiFailed: "Sorry, the AI service failed to respond. Please try again later.",
+        },
+        hi: {
+            title: 'आहार सलाहकार 🌿',
+            subtitle: ' apni bimari (disease) aur dawai (medicine) likh kar salah payein.',
+            labelDisease: 'Bimari <span class="text-red-400">*</span>',
+            labelMedicine: 'Dawai - Vaikalpik',
+            placeholderDisease: 'Udharan: Dengue bukhar',
+            placeholderMedicine: 'Udharan: paracetamol',
+            buttonText: 'Vyaktigat salah prapt karein',
+            loaderText: 'AI se visheshagy salah prapt ho rahi hai...',
+            resultsDisclaimer: 'Asvikaran: Yeh salah AI-janit hai aur keval soochanaatmak uddeshyon ke liye hai. Vyaktigat aahar aur chikitsa salah ke liye hamesha ek yogy chikitsak se paramarsh lein.',
+            recommendedTitle: 'Sujhaye Gaye Khadya Padarth (Khana Chahiye)',
+            avoidTitle: 'Parhej Karne Wale Khadya Padarth (Nahi Khana Chahiye)',
+            errorNoDisease: 'Salah prapt karne ke liye kripya bimari ka naam darj karein.',
+            errorApiFailed: "Kshama karein, AI seva jawab dene mein vifal rahi. Kripya baad mein punah prayas karein.",
+        }
+    };
+
+    let currentLang = 'en';
+
+    // --- DOM Elements ---
+    const languageSwitcher = document.getElementById('language-switcher');
+    const diseaseInput = document.getElementById('diseaseInput');
+    const medicineInput = document.getElementById('medicineInput');
+    const getAdviceBtn = document.getElementById('getAdviceBtn');
+    const loader = document.getElementById('loader');
+    const resultsDiv = document.getElementById('results');
+    
+    function switchLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+        document.getElementById('header-title').innerHTML = t.title;
+        document.getElementById('header-subtitle').innerHTML = t.subtitle;
+        document.getElementById('label-disease').innerHTML = t.labelDisease;
+        document.getElementById('label-medicine').innerHTML = t.labelMedicine;
+        document.getElementById('button-text').textContent = t.buttonText;
+        document.getElementById('loader-text').textContent = t.loaderText;
+        diseaseInput.placeholder = t.placeholderDisease;
+        medicineInput.placeholder = t.placeholderMedicine;
+        resultsDiv.innerHTML = '';
+    }
+
+    languageSwitcher.addEventListener('change', (e) => switchLanguage(e.target.value));
+    switchLanguage('en');
+
+    // --- CORE API CALL LOGIC ---
+    getAdviceBtn.addEventListener('click', findAndDisplayAdvice);
+    
+    async function findAndDisplayAdvice() {
+        const t = translations[currentLang];
+        const diseaseQuery = diseaseInput.value.toLowerCase().trim();
+        const medQuery = medicineInput.value.toLowerCase().trim();
+
+        if (!diseaseQuery) {
+            resultsDiv.innerHTML = `<div class="p-3 rounded-lg bg-red-500/20 text-red-300 text-center">${t.errorNoDisease}</div>`;
+            return;
+        }
+        
+        loader.classList.remove('hidden');
+        resultsDiv.innerHTML = ''; 
+
+        try {
+            const response = await fetch("{{ url_for('main.diet_advice_api') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    disease: diseaseQuery,
+                    medicine: medQuery,
+                    language: currentLang
+                })
+            });
+
+            if (!response.ok) throw new Error('Backend API call failed');
+            
+            const advice = await response.json();
+            if (advice.error) throw new Error(advice.error);
+
+            displayResults(advice.recommend, advice.avoid, diseaseQuery, medQuery);
+
+        } catch (error) {
+            console.error("API Error:", error);
+            resultsDiv.innerHTML = `<div class="p-3 rounded-lg bg-red-500/20 text-red-300 text-center">${t.errorApiFailed}</div>`;
+        } finally {
+            loader.classList.add('hidden');
+        }
+    }
+    
+    // --- DISPLAY RESULTS FUNCTION ---
+    function displayResults(recommendList, avoidList, diseaseName, medName) {
+        const t = translations[currentLang];
+        let title = `${diseaseName.split(' (')[0].replace(/\b\w/g, l => l.toUpperCase())}`;
+        let subtitle = `Compatible Diet Plan`;
+        if (medName) {
+            subtitle += ` with ${medName.replace(/\b\w/g, l => l.toUpperCase())}`;
+        }
+
+        let tableHTML = `
+            <div class="mt-8 border border-white/10 rounded-xl overflow-hidden bg-black/20">
+                <div class="p-4 text-center border-b border-white/10">
+                    <h2 class="text-2xl font-bold text-white flex items-center justify-center">${title} <span class="text-sm font-semibold ml-2 p-1 rounded-full bg-teal-500/20 text-teal-300">AI ✨</span></h2>
+                    <p class="text-md text-gray-400 font-medium">${subtitle}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="p-6 border-b md:border-b-0 md:border-r border-white/10">
+                        <h3 class="flex items-center text-xl font-bold text-green-400 mb-4">
+                            <i class="fas fa-check-circle mr-2"></i> ${t.recommendedTitle}
+                        </h3>
+                        <ul class="space-y-3 text-gray-300">
+                            ${recommendList.map(item => `<li class="flex items-start"><span class="h-2 w-2 bg-green-500 rounded-full flex-shrink-0 mt-2 mr-3"></span>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="flex items-center text-xl font-bold text-red-400 mb-4">
+                            <i class="fas fa-times-circle mr-2"></i> ${t.avoidTitle}
+                        </h3>
+                        <ul class="space-y-3 text-gray-300">
+                            ${avoidList.map(item => `<li class="flex items-start"><span class="h-2 w-2 bg-red-500 rounded-full flex-shrink-0 mt-2 mr-3"></span>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="p-4 bg-black/20 text-center text-xs text-gray-500 border-t border-white/10">
+                    <p>${t.resultsDisclaimer}</p>
+                </div>
+            </div>
+        `;
+        resultsDiv.innerHTML = tableHTML;
+    }
+</script>
+{% endblock %}

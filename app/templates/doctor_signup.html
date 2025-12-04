@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Doctor Signup</h2>
+                <form action="{{ url_for('auth.doctor_signup') }}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Naam (Name):</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Specialty (e.g., Cardiologist):</label>
+                        <input type="text" name="specialty" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password:</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register as Doctor</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

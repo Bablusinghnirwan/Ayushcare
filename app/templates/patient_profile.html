@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-4xl font-bold text-white"><i class="fas fa-user-circle mr-3"></i>My Health Profile</h2>
+        <p class="text-gray-400 mt-2">Your complete health and personal information.</p>
+    </div>
+    <a href="{{ url_for('patient.edit_profile') }}" class="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors no-underline flex items-center">
+        <i class="fas fa-edit mr-2"></i> Edit Profile
+    </a>
+</div>
+
+<div class="glass-card">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-1 text-center md:text-left md:border-r border-white/10 md:pr-8">
+            {% if patient.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/patient_dps/' + patient.profile_picture) }}" alt="{{ patient.name }}" class="w-32 h-32 object-cover rounded-full mx-auto md:mx-0 mb-4 ring-2 ring-cyan-400/50">
+            {% else %}
+                <div class="w-32 h-32 rounded-full mx-auto md:mx-0 mb-4 bg-black/20 flex items-center justify-center">
+                    <i class="fas fa-user fa-4x text-gray-500"></i>
+                </div>
+            {% endif %}
+            <h3 class="text-2xl font-bold text-white">{{ patient.name }}</h3>
+            <p class="text-cyan-300 font-semibold">{{ patient.email }}</p>
+            <div class="mt-4 space-y-2 text-sm text-gray-300">
+                <p><i class="fas fa-id-card w-5 mr-2 text-gray-400"></i> {{ patient.aadhar_number }}</p>
+                <p><i class="fas fa-birthday-cake w-5 mr-2 text-gray-400"></i> {{ patient.date_of_birth.strftime('%d %B %Y') }}</p>
+            </div>
+        </div>
+        
+        <div class="md:col-span-2 space-y-6">
+            <div>
+                <h4 class="text-lg font-semibold text-white border-b border-white/10 pb-2 mb-3">Health Metrics</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <p><strong class="text-gray-400 block">Blood Group:</strong> {{ patient.blood_group or "N/A" }}</p>
+                    <p><strong class="text-gray-400 block">Height:</strong> {{ patient.height or "N/A" }} cm</p>
+                    <p><strong class="text-gray-400 block">Weight:</strong> {{ patient.weight or "N/A" }} kg</p>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold text-white border-b border-white/10 pb-2 mb-3">Medical History</h4>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <p><strong class="text-gray-400 block">Allergies:</strong> {{ patient.allergies or "None reported" }}</p>
+                    <p><strong class="text-gray-400 block">Chronic Diseases:</strong> {{ patient.chronic_diseases or "None reported" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

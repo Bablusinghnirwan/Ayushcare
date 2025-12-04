@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-8">
+    <h2 class="text-4xl font-bold text-white">Welcome, Dr. {{ doctor.name }}!</h2>
+    <p class="text-gray-400 mt-2">Here is your control center for managing patients and records.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2">
+        <div class="glass-card">
+            <div class="border-b border-white/10 mb-4">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button class="tab-button active" data-target="add-record">Add Record</button>
+                    <button class="tab-button" data-target="add-condition">Add Condition</button>
+                    <button class="tab-button" data-target="active-conditions">Active Conditions</button>
+                </nav>
+            </div>
+            
+            <div>
+                <div id="add-record" class="tab-content">
+                    <form method="post" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Patient</label>
+                            <select name="patient" class="form-control-glass mt-1 block w-full rounded-md" required>
+                                {% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium text-gray-300">Symptoms</label><textarea name="symptoms" class="form-control-glass mt-1 block w-full rounded-md"></textarea></div>
+                            <div><label class="block text-sm font-medium text-gray-300">Diagnosis</label><textarea name="diagnosis" class="form-control-glass mt-1 block w-full rounded-md"></textarea></div>
+                        </div>
+                        <div><label class="block text-sm font-medium text-gray-300">Prescription</label><textarea name="prescription" class="form-control-glass mt-1 block w-full rounded-md"></textarea></div>
+                        <div><label class="block text-sm font-medium text-gray-300">Dose</label><input type="text" name="dose" class="form-control-glass mt-1 block w-full rounded-md"></div>
+                        <div><label class="block text-sm font-medium text-gray-300">Health Report</label><input type="file" name="report_file" class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/10 file:text-cyan-300 hover:file:bg-cyan-500/20"></div>
+                        <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save Record</button>
+                    </form>
+                </div>
+                
+                <div id="add-condition" class="tab-content hidden">
+                    <form action="{{ url_for('doctor.manage_conditions') }}" method="post" class="space-y-4">
+                        <div><label class="block text-sm font-medium text-gray-300">Patient</label><select name="patient" class="form-control-glass mt-1 block w-full rounded-md" required>{% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+                        <div><label class="block text-sm font-medium text-gray-300">Condition Name</label><input type="text" name="condition_name" class="form-control-glass mt-1 block w-full rounded-md" required></div>
+                        <div><label class="block text-sm font-medium text-gray-300">Start Date</label><input type="date" name="start_date" class="form-control-glass mt-1 block w-full rounded-md" required></div>
+                        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Add Condition</button>
+                    </form>
+                </div>
+
+                <div id="active-conditions" class="tab-content hidden">
+                    <ul class="space-y-3">
+                        {% if active_conditions %}
+                            {% for condition in active_conditions %}
+                            <li class="py-2 border-b border-white/10 flex justify-between items-center">
+                                <div>
+                                    <strong>{{ condition.patient.name }}</strong>
+                                    <small class="block text-gray-400">{{ condition.condition_name }} (since {{ condition.start_date.strftime('%d %b %Y') }})</small>
+                                </div>
+                                <a href="{{ url_for('main.edit_condition', condition_id=condition.id) }}" class="text-sm bg-yellow-500/20 text-yellow-300 py-1 px-3 rounded-full hover:bg-yellow-500/40 no-underline">Edit</a>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-center text-gray-400">No active conditions found.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-8">
+        <div class="glass-card">
+            <div class="flex justify-between items-center mb-4">
+                <h6 class="text-lg font-bold text-white"><i class="fas fa-calendar-check mr-2"></i>Upcoming</h6>
+                <a href="{{ url_for('doctor.appointments') }}" class="text-sm text-cyan-400 hover:text-cyan-300 no-underline">View All</a>
+            </div>
+            <ul class="space-y-3">
+                {% if appointments %}
+                    {% for appt in appointments %}
+                        {% if appt.status.name == 'SCHEDULED' or appt.status.name == 'PENDING_CONFIRMATION' %}
+                        <li class="py-2 border-b border-white/10">
+                            <strong class="block">{{ appt.patient.name }}</strong>
+                            <small class="text-gray-400">{{ appt.appointment_datetime.strftime('%d %b, %I:%M %p') }}</small>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <li class="text-center text-gray-400">No upcoming appointments.</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <div class="glass-card text-center">
+            <i class="fas fa-search fa-2x text-cyan-300 mb-3"></i>
+            <h5 class="text-lg font-bold text-white">Search Patient</h5>
+            <p class="text-sm text-gray-400 mb-4">Find a patient's complete history.</p>
+            <a href="{{ url_for('doctor.search_patient') }}" class="w-full block bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-colors no-underline">Go to Search</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+
+                // Activate clicked tab and its content
+                tab.classList.add('active');
+                const targetContent = document.getElementById(tab.dataset.target);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .tab-button {
+        @apply whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:border-gray-300 hover:text-white;
+    }
+    .tab-button.active {
+        @apply border-cyan-400 text-cyan-300;
+    }
+</style>
+{% endblock %}

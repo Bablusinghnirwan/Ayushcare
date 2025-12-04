@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AayushCare — Your Digital Health Partner</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles for the page */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            overflow: hidden; /* Prevents scrolling */
+        }
+        
+        /* --- NEW AURORA BACKGROUND --- */
+        #aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: #0c1427; /* Dark blue background */
+            overflow: hidden;
+        }
+
+        .aurora-dot {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px); /* Creates the soft glow */
+            opacity: 0.5;
+        }
+
+        /* Define multiple dots with different sizes, colors, and animations */
+        #aurora-bg .aurora-dot:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: #06b6d4; /* cyan-500 */
+            animation: move-aurora-1 25s linear infinite;
+        }
+
+        #aurora-bg .aurora-dot:nth-child(2) {
+            width: 350px;
+            height: 350px;
+            background: #14b8a6; /* teal-500 */
+            animation: move-aurora-2 30s linear infinite;
+        }
+
+        #aurora-bg .aurora-dot:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: #3b82f6; /* blue-500 */
+            animation: move-aurora-3 20s linear infinite;
+        }
+
+        #aurora-bg .aurora-dot:nth-child(4) {
+            width: 250px;
+            height: 250px;
+            background: #6366f1; /* indigo-500 */
+            animation: move-aurora-4 35s linear infinite;
+        }
+
+
+        @keyframes move-aurora-1 {
+            0% { transform: translate(10vw, 80vh); }
+            25% { transform: translate(80vw, 20vh) scale(0.8); }
+            50% { transform: translate(50vw, 90vh); }
+            75% { transform: translate(10vw, 10vh) scale(1.2); }
+            100% { transform: translate(10vw, 80vh); }
+        }
+
+        @keyframes move-aurora-2 {
+            0% { transform: translate(80vw, 90vh); }
+            25% { transform: translate(10vw, 30vh) scale(1.1); }
+            50% { transform: translate(40vw, 5vh); }
+            75% { transform: translate(90vw, 60vh) scale(0.9); }
+            100% { transform: translate(80vw, 90vh); }
+        }
+
+        @keyframes move-aurora-3 {
+            0% { transform: translate(50vw, 10vh); }
+            25% { transform: translate(20vw, 90vh) scale(0.7); }
+            50% { transform: translate(90vw, 50vh); }
+            75% { transform: translate(40vw, 20vh) scale(1.1); }
+            100% { transform: translate(50vw, 10vh); }
+        }
+
+        @keyframes move-aurora-4 {
+            0% { transform: translate(10vw, 10vh); }
+            25% { transform: translate(90vw, 90vh) scale(1.2); }
+            50% { transform: translate(20vw, 80vh); }
+            75% { transform: translate(70vw, 10vh) scale(0.8); }
+            100% { transform: translate(10vw, 10vh); }
+        }
+        /* --- END OF AURORA BACKGROUND --- */
+
+        
+        /* Custom transition for form switching */
+        .form-container {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0.5s;
+        }
+
+        .form-hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            visibility: hidden;
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+        }
+        
+        .form-visible {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+            position: relative;
+            pointer-events: auto;
+        }
+        
+        /* Neon effect for input focus */
+        .input-focus:focus {
+            outline: none;
+            border-color: #2dd4bf; /* teal-400 */
+            box-shadow: 0 0 8px rgba(45, 212, 191, 0.6), 0 0 15px rgba(45, 212, 191, 0.3);
+        }
+        
+        /* Neon effect and click animation for buttons */
+        .neon-button {
+            transition: all 0.3s ease-in-out;
+        }
+        .neon-button:hover, .neon-button:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .neon-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+        .bg-teal-600.neon-button:hover, .bg-teal-600.neon-button:focus {
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.7), 0 0 25px rgba(20, 184, 166, 0.4);
+        }
+        .bg-cyan-600.neon-button:hover, .bg-cyan-600.neon-button:focus {
+             box-shadow: 0 0 15px rgba(8, 145, 178, 0.7), 0 0 25px rgba(8, 145, 178, 0.4);
+        }
+        .bg-teal-500.neon-button:hover, .bg-teal-500.neon-button:focus {
+             box-shadow: 0 0 15px rgba(20, 184, 166, 0.7), 0 0 25px rgba(20, 184, 166, 0.4);
+        }
+        .bg-cyan-500.neon-button:hover, .bg-cyan-500.neon-button:focus {
+             box-shadow: 0 0 15px rgba(8, 145, 178, 0.7), 0 0 25px rgba(8, 145, 178, 0.4);
+        }
+        
+        /* New subtle slide-in animation for form elements */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-form-element {
+            animation: slideInUp 0.5s ease-in-out backwards;
+        }
+
+        /* New Vibration/Shake animation for errors */
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .shake {
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        /* -- SPLASH SCREEN ANIMATIONS -- */
+        #splash-screen {
+            background: linear-gradient(-45deg, #ccfbf1, #cffafe, #e0f2fe, #a7f3d0);
+            background-size: 400% 400%;
+            animation: gradientBG 8s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .splash-logo {
+            animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 1.5s ease-in-out infinite 1s;
+        }
+
+        .splash-text {
+            opacity: 0;
+            animation: fadeInSlideUp 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 4px rgba(20, 184, 166, 0.5));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 12px rgba(20, 184, 166, 0.8));
+            }
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Role dropdown styles */
+        .role-dropdown-options {
+            transition: all 0.3s ease-in-out;
+            transform-origin: top;
+            display: none;
+        }
+        .role-dropdown-options.open {
+            display: block;
+            animation: scaleIn 0.3s ease-out;
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scaleY(0.9); }
+            to { opacity: 1; transform: scaleY(1); }
+        }
+        .role-radio-label {
+            transition: all 0.2s ease-in-out;
+        }
+        .role-radio:checked + .role-radio-label {
+            background-color: #14b8a6;
+            color: white;
+            border-color: #0d9488;
+        }
+
+        /* Staggered animation delays */
+        .animate-form-element:nth-child(1) { animation-delay: 0.1s; }
+        .animate-form-element:nth-child(2) { animation-delay: 0.2s; }
+        .animate-form-element:nth-child(3) { animation-delay: 0.3s; }
+        .animate-form-element:nth-child(4) { animation-delay: 0.4s; }
+        .animate-form-element:nth-child(5) { animation-delay: 0.5s; }
+        .animate-form-element:nth-child(6) { animation-delay: 0.6s; }
+        .animate-form-element:nth-child(7) { animation-delay: 0.7s; }
+
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out">
+        <div>
+            <svg class="mx-auto h-16 w-auto text-teal-600 splash-logo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            <h1 class="mt-6 text-center text-4xl font-bold tracking-tight text-gray-900 splash-text">
+                Vaidyashri
+            </h1>
+        </div>
+    </div>
+
+    <div id="main-content" class="opacity-0 transition-opacity duration-1000">
+        <div id="aurora-bg">
+            <div class="aurora-dot"></div>
+            <div class="aurora-dot"></div>
+            <div class="aurora-dot"></div>
+            <div class="aurora-dot"></div>
+        </div>
+        
+        <div class="relative h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full">
+                <div class="relative">
+                    <div id="login-form-container" class="form-container form-visible">
+                        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 space-y-6">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-auto text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                                <h2 class="mt-6 text-3xl font-bold tracking-tight text-white">Vaidyashri</h2>
+                                <p class="mt-2 text-sm text-gray-300">Your Digital Health Partner</p>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-100 text-center animate-form-element pt-4">Sign in to your account</h3>
+                            <form id="login-form" class="space-y-6" onsubmit="handleLogin(event)">
+                                <div class="relative animate-form-element" id="login-role-dropdown-container">
+                                    <button type="button" id="login-role-button" class="relative w-full cursor-pointer rounded-md border border-gray-500 bg-white/20 py-3 pl-3 pr-10 text-left shadow-sm text-white focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 sm:text-sm">
+                                        <span class="block truncate" id="login-role-text">Select your role</span>
+                                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 7.03 7.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l2.97-2.97a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                    </button>
+                                    <div class="absolute z-10 mt-1 w-full rounded-md bg-gray-900/80 border border-gray-600 shadow-lg p-2 role-dropdown-options" id="login-role-options">
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <div><input type="radio" id="login-role-patient" name="login_role" value="patient" required checked class="hidden role-radio"><label for="login-role-patient" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Patient</label></div>
+                                            <div><input type="radio" id="login-role-doctor" name="login_role" value="doctor" required class="hidden role-radio"><label for="login-role-doctor" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Doctor</label></div>
+                                            <div><input type="radio" id="login-role-hospital" name="login_role" value="hospital" required class="hidden role-radio"><label for="login-role-hospital" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Hospital</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="animate-form-element">
+                                    <input id="login-aadhaar" name="aadhaar" type="text" required class="input-focus relative block w-full appearance-none rounded-md border border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400 focus:z-10 sm:text-sm" placeholder="12-digit Aadhaar Number" pattern="\d{12}" title="Aadhaar number must be 12 digits.">
+                                </div>
+                                <div class="text-right text-sm animate-form-element">
+                                    <button type="button" onclick="showForgotPasswordForm()" class="font-medium text-cyan-400 hover:text-cyan-300">Forgot Password?</button>
+                                </div>
+                                <div id="login-otp-section" class="hidden space-y-4 animate-form-element">
+                                    <input id="login-otp" name="otp" type="text" required class="input-focus relative block w-full appearance-none rounded-md border border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400 focus:z-10 sm:text-sm" placeholder="Enter 6-digit OTP">
+                                    <p id="login-otp-message" class="text-xs text-center text-gray-400"></p>
+                                </div>
+                                <div class="animate-form-element">
+                                    <button type="button" id="send-login-otp-btn" class="neon-button group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-3 px-4 text-sm font-medium text-white hover:bg-teal-700">Send OTP</button>
+                                    <button type="submit" id="login-btn" class="neon-button group relative hidden w-full justify-center rounded-md border border-transparent bg-cyan-600 py-3 px-4 text-sm font-medium text-white hover:bg-cyan-700">Sign In</button>
+                                </div>
+                                <p id="login-message" class="text-sm text-center font-medium"></p>
+                            </form>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-300">Don't have an account? <button onclick="showSignupForm()" class="font-medium text-cyan-400 hover:text-cyan-300">Sign Up</button></p>
+                        </div>
+                    </div>
+
+                    <div id="signup-form-container" class="form-container form-hidden">
+                        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 space-y-6">
+                             <h3 class="text-xl font-semibold text-gray-100 text-center animate-form-element">Create a new account</h3>
+                            <form id="signup-form" class="space-y-4" onsubmit="handleSignup(event)">
+                                <div id="signup-step-1" class="space-y-4">
+                                    <div class="relative animate-form-element" id="signup-role-dropdown-container">
+                                        <button type="button" id="signup-role-button" class="relative w-full cursor-pointer rounded-md border border-gray-500 bg-white/20 py-3 pl-3 pr-10 text-left shadow-sm text-white focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 sm:text-sm">
+                                            <span class="block truncate" id="signup-role-text">Select role for registration</span>
+                                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 7.03 7.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l2.97-2.97a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div class="absolute z-10 mt-1 w-full rounded-md bg-gray-900/80 border border-gray-600 shadow-lg p-2 role-dropdown-options" id="signup-role-options">
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <div><input type="radio" id="signup-role-patient" name="signup_role" value="patient" required checked class="hidden role-radio"><label for="signup-role-patient" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Patient</label></div>
+                                                <div><input type="radio" id="signup-role-doctor" name="signup_role" value="doctor" required class="hidden role-radio"><label for="signup-role-doctor" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Doctor</label></div>
+                                                <div><input type="radio" id="signup-role-hospital" name="signup_role" value="hospital" required class="hidden role-radio"><label for="signup-role-hospital" class="role-radio-label text-center block w-full text-sm font-medium rounded-md py-2 border border-gray-600 bg-transparent text-gray-300 cursor-pointer hover:bg-white/10">Hospital</label></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="animate-form-element"><input id="signup-name" name="name" type="text" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400" placeholder="Full Name"></div>
+                                    <div class="animate-form-element"><input id="signup-email" name="email" type="email" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400" placeholder="Email Address"></div>
+                                    <div class="flex gap-2 animate-form-element">
+                                        <input id="signup-phone" name="phone" type="tel" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400" placeholder="Phone Number" pattern="\d{10}">
+                                        <button type="button" id="send-signup-otp-btn" class="neon-button w-1/2 rounded-md bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600">Send OTP</button>
+                                    </div>
+                                </div>
+                                <div id="signup-step-2" class="hidden space-y-4 animate-form-element">
+                                   <p class="text-sm text-center text-gray-300">An OTP has been sent to your phone number.</p>
+                                    <div class="flex gap-2">
+                                        <input id="signup-otp" name="otp" type="text" class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400" placeholder="Enter 6-digit OTP">
+                                        <button type="button" id="verify-signup-otp-btn" class="neon-button w-1/2 rounded-md bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600">Verify OTP</button>
+                                    </div>
+                                    <p id="signup-otp-message" class="text-xs text-center text-gray-400"></p>
+                                </div>
+                                <div id="signup-step-3" class="hidden space-y-4">
+                                    <div class="flex gap-2 animate-form-element">
+                                       <input id="signup-aadhaar" name="aadhaar" type="text" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400" placeholder="Aadhaar / Registration No." pattern="\d{12}">
+                                       <button type="button" id="verify-aadhaar-btn" class="neon-button w-1/2 rounded-md bg-cyan-500 px-3 py-2 text-sm font-medium text-white hover:bg-cyan-600">Verify</button>
+                                    </div>
+                                     <p id="aadhaar-message" class="text-xs text-center text-gray-400 animate-form-element"></p>
+                                     <div class="relative animate-form-element">
+                                         <input id="signup-password" name="password" type="password" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 pr-10 text-white placeholder-gray-400" placeholder="Password">
+                                         <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-400" onclick="togglePasswordVisibility('signup-password', 'password-toggle-icon-1')">
+                                             <svg id="password-toggle-icon-1-eye" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                             <svg id="password-toggle-icon-1-eye-slash" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" /></svg>
+                                         </button>
+                                     </div>
+                                     <div class="relative animate-form-element">
+                                         <input id="signup-confirm-password" name="confirm-password" type="password" required class="input-focus w-full rounded-md border-gray-500 bg-white/20 px-3 py-3 pr-10 text-white placeholder-gray-400" placeholder="Confirm Password">
+                                         <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-400" onclick="togglePasswordVisibility('signup-confirm-password', 'password-toggle-icon-2')">
+                                             <svg id="password-toggle-icon-2-eye" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                             <svg id="password-toggle-icon-2-eye-slash" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" /></svg>
+                                         </button>
+                                     </div>
+                                </div>
+                                <button type="submit" id="signup-btn" class="neon-button group relative hidden w-full justify-center rounded-md border border-transparent bg-cyan-600 py-3 px-4 text-sm font-medium text-white hover:bg-cyan-700 animate-form-element">Create Account</button>
+                                <p id="signup-message" class="text-sm text-center font-medium"></p>
+                            </form>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-300">Already have an account? <button onclick="showLoginForm()" class="font-medium text-cyan-400 hover:text-cyan-300">Sign In</button></p>
+                        </div>
+                    </div>
+
+                    <div id="forgot-password-form-container" class="form-container form-hidden">
+                        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-100 text-center animate-form-element">Reset Your Password</h3>
+                            <p class="text-sm text-center text-gray-300 animate-form-element">Enter your Aadhaar number and we'll send you a link to reset your password.</p>
+                            <form id="forgot-password-form" class="space-y-6" onsubmit="handleForgotPassword(event)">
+                                <div class="animate-form-element">
+                                    <input id="forgot-aadhaar" name="aadhaar" type="text" required class="input-focus relative block w-full appearance-none rounded-md border border-gray-500 bg-white/20 px-3 py-3 text-white placeholder-gray-400 focus:z-10 sm:text-sm" placeholder="12-digit Aadhaar Number" pattern="\d{12}">
+                                </div>
+                                <div class="animate-form-element">
+                                    <button type="submit" id="forgot-password-btn" class="neon-button group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-3 px-4 text-sm font-medium text-white hover:bg-teal-700">Send Reset Link</button>
+                                </div>
+                                <p id="forgot-password-message" class="text-sm text-center font-medium"></p>
+                            </form>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-300"><button onclick="showLoginForm()" class="font-medium text-cyan-400 hover:text-cyan-300">Back to Login</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // --- API Endpoints ---
+        const API = {
+            sendOtp: "{{ url_for('auth.send_otp_api') }}",
+            login: "{{ url_for('auth.login_api') }}",
+            signup: "{{ url_for('auth.signup_api') }}"
+            // You would also add a forgot password API endpoint here
+        };
+    
+        // --- DOM Elements ---
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
+        const loginFormContainer = document.getElementById('login-form-container');
+        const signupFormContainer = document.getElementById('signup-form-container');
+        const forgotPasswordFormContainer = document.getElementById('forgot-password-form-container');
+    
+        // Login form elements
+        const loginForm = document.getElementById('login-form');
+        const loginOtpInput = document.getElementById('login-otp');
+        const loginOtpSection = document.getElementById('login-otp-section');
+        const loginOtpMessage = document.getElementById('login-otp-message');
+        const sendLoginOtpBtn = document.getElementById('send-login-otp-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const loginMessage = document.getElementById('login-message');
+        const loginAadhaarInput = document.getElementById('login-aadhaar');
+    
+        // Signup form elements
+        const signupForm = document.getElementById('signup-form');
+        const signupStep1 = document.getElementById('signup-step-1');
+        const signupStep2 = document.getElementById('signup-step-2');
+        const signupStep3 = document.getElementById('signup-step-3');
+        const sendSignupOtpBtn = document.getElementById('send-signup-otp-btn');
+        const verifySignupOtpBtn = document.getElementById('verify-signup-otp-btn');
+        const verifyAadhaarBtn = document.getElementById('verify-aadhaar-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const signupOtpMessage = document.getElementById('signup-otp-message');
+        const aadhaarMessage = document.getElementById('aadhaar-message');
+        const signupMessage = document.getElementById('signup-message');
+        const signupOtpInput = document.getElementById('signup-otp');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const signupConfirmPasswordInput = document.getElementById('signup-confirm-password');
+        const signupAadhaarInput = document.getElementById('signup-aadhaar');
+        const signupNameInput = document.getElementById('signup-name');
+        
+        // Forgot Password elements
+        const forgotPasswordForm = document.getElementById('forgot-password-form');
+        const forgotPasswordMessage = document.getElementById('forgot-password-message');
+    
+        // Role Dropdown Elements
+        const loginRoleButton = document.getElementById('login-role-button');
+        const loginRoleOptions = document.getElementById('login-role-options');
+        const loginRoleText = document.getElementById('login-role-text');
+        
+        const signupRoleButton = document.getElementById('signup-role-button');
+        const signupRoleOptions = document.getElementById('signup-role-options');
+        const signupRoleText = document.getElementById('signup-role-text');
+    
+        // --- Splash Screen Logic ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                splashScreen.classList.add('opacity-0', 'pointer-events-none');
+                mainContent.classList.remove('opacity-0');
+            }, 2500);
+        });
+        
+        // --- Helper Functions ---
+        function shakeElement(el) {
+            el.classList.add('shake');
+            setTimeout(() => el.classList.remove('shake'), 820);
+        }
+    
+        function showMessage(el, text, isError = false) {
+            el.textContent = text;
+            el.className = `text-sm text-center font-medium ${isError ? 'text-red-400' : 'text-green-400'}`;
+        }
+    
+        function updatePlaceholder(role, inputElement) {
+            if (role === 'doctor' || role === 'hospital') {
+                inputElement.placeholder = "Aadhaar / Registration No.";
+            } else {
+                inputElement.placeholder = "12-digit Aadhaar Number";
+            }
+        }
+        // --- Form Navigation ---
+        function showLoginForm() {
+            signupFormContainer.classList.replace('form-visible', 'form-hidden');
+            forgotPasswordFormContainer.classList.replace('form-visible', 'form-hidden');
+            loginFormContainer.classList.replace('form-hidden', 'form-visible');
+        }
+    
+        function showSignupForm() {
+            loginFormContainer.classList.replace('form-visible', 'form-hidden');
+            forgotPasswordFormContainer.classList.replace('form-visible', 'form-hidden');
+            signupFormContainer.classList.replace('form-hidden', 'form-visible');
+        }
+        
+        function showForgotPasswordForm() {
+            loginFormContainer.classList.replace('form-visible', 'form-hidden');
+            signupFormContainer.classList.add('form-hidden');
+            forgotPasswordFormContainer.classList.replace('form-hidden', 'form-visible');
+        }
+        
+        // --- Event Listeners & Handlers ---
+        
+        // Login form ke role change par placeholder badlein
+        document.querySelectorAll('input[name="login_role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+            updatePlaceholder(this.value, loginAadhaarInput);
+            });
+        });
+
+        // Signup form ke role change par placeholder badlein
+        document.querySelectorAll('input[name="signup_role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+            updatePlaceholder(this.value, signupAadhaarInput);
+            });
+        });
+        
+        // LOGIN FORM LOGIC
+        sendLoginOtpBtn.addEventListener('click', async () => {
+            if (!loginAadhaarInput.checkValidity()) {
+                loginAadhaarInput.reportValidity(); return;
+            }
+            sendLoginOtpBtn.disabled = true;
+            sendLoginOtpBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verifying...`;
+            
+            try {
+                const response = await fetch(API.sendOtp, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        aadhaar: loginAadhaarInput.value,
+                        role: document.querySelector('input[name="login_role"]:checked').value
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to send OTP.');
+                
+                showMessage(loginOtpMessage, data.message);
+                loginOtpSection.classList.remove('hidden');
+                sendLoginOtpBtn.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+            } catch (error) {
+                showMessage(loginMessage, error.message, true);
+                sendLoginOtpBtn.disabled = false;
+                sendLoginOtpBtn.innerHTML = 'Send OTP';
+            }
+        });
+    
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'Signing In...';
+            try {
+                const response = await fetch(API.login, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        aadhaar: loginAadhaarInput.value,
+                        otp: loginOtpInput.value,
+                        role: document.querySelector('input[name="login_role"]:checked').value
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Login failed.');
+                showMessage(loginMessage, 'Login successful! Redirecting...');
+                window.location.href = data.redirect_url;
+            } catch (error) {
+                showMessage(loginMessage, error.message, true);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Sign In';
+            }
+        });
+    
+        // SIGNUP FORM LOGIC
+        signupForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const signupBtn = document.getElementById('signup-btn');
+            if (signupPasswordInput.value !== signupConfirmPasswordInput.value) {
+                showMessage(signupMessage, 'Passwords do not match.', true);
+                shakeElement(signupPasswordInput);
+                shakeElement(signupConfirmPasswordInput);
+                return;
+            }
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = 'Creating Account...';
+            const formData = new FormData(signupForm);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const response = await fetch(API.signup, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Signup failed.');
+                showMessage(signupMessage, 'Account created! Please log in.');
+                setTimeout(() => { showLoginForm(); signupForm.reset(); }, 2500);
+            } catch(error) {
+                showMessage(signupMessage, error.message, true);
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = 'Create Account';
+            }
+        });
+        
+        // MOCK OTP Logic for Signup (for now)
+        let mockSignupOtp = '';
+        sendSignupOtpBtn.addEventListener('click', () => {
+             if (!document.getElementById('signup-phone').checkValidity()) {
+                document.getElementById('signup-phone').reportValidity(); return;
+            }
+            mockSignupOtp = Math.floor(100000 + Math.random() * 900000).toString();
+            console.log(`Mock Signup OTP: ${mockSignupOtp}`);
+            showMessage(signupOtpMessage, `(Mock) OTP sent: ${mockSignupOtp}`);
+            signupStep2.classList.remove('hidden');
+        });
+    
+        verifySignupOtpBtn.addEventListener('click', () => {
+            if (signupOtpInput.value === mockSignupOtp) {
+                showMessage(signupOtpMessage, 'Phone number verified!', false);
+                signupStep1.classList.add('hidden');
+                signupStep2.classList.add('hidden');
+                signupStep3.classList.remove('hidden');
+                signupBtn.classList.remove('hidden');
+            } else {
+                showMessage(signupOtpMessage, 'Invalid OTP.', true);
+                shakeElement(signupOtpInput);
+            }
+        });
+    
+        // FORGOT PASSWORD LOGIC
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            if (!forgotPasswordForm.checkValidity()) {
+                forgotPasswordForm.reportValidity(); return;
+            }
+            showMessage(forgotPasswordMessage, 'If an account with that Aadhaar exists, a reset link has been sent.');
+            // Here you would make an API call to your backend
+            setTimeout(() => {
+                showLoginForm();
+                forgotPasswordMessage.textContent = '';
+                forgotPasswordForm.reset();
+            }, 3000);
+        }
+    
+        // ROLE DROPDOWN LOGIC
+        function setupRoleDropdown(button, options, textEl, namePrefix) {
+            button.addEventListener('click', (e) => { e.stopPropagation(); options.classList.toggle('open'); });
+            document.querySelectorAll(`input[name="${namePrefix}_role"]`).forEach(radio => {
+                radio.addEventListener('change', function() {
+                    textEl.textContent = `Role: ${document.querySelector(`label[for="${this.id}"]`).textContent}`;
+                    options.classList.remove('open');
+                });
+            });
+        }
+        setupRoleDropdown(loginRoleButton, loginRoleOptions, loginRoleText, 'login');
+        setupRoleDropdown(signupRoleButton, signupRoleOptions, signupRoleText, 'signup');
+        window.addEventListener('click', () => {
+            loginRoleOptions.classList.remove('open');
+            signupRoleOptions.classList.remove('open');
+        });
+        
+        // PASSWORD VISIBILITY TOGGLE
+        function togglePasswordVisibility(inputId, iconIdPrefix) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(`${iconIdPrefix}-eye`);
+            const eyeSlashIcon = document.getElementById(`${iconIdPrefix}-eye-slash`);
+            if (input.type === "password") {
+                input.type = "text";
+                eyeIcon.classList.add("hidden");
+                eyeSlashIcon.classList.remove("hidden");
+            } else {
+                input.type = "password";
+                eyeIcon.classList.remove("hidden");
+                eyeSlashIcon.classList.add("hidden");
+            }
+        }
+    </script>
+</body>
+</html>

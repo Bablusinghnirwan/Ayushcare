@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    /* Main Chat Area Styling */
+    .chat-main {
+        display: flex; flex-direction: column; 
+        height: calc(100vh - 4rem); /* Adjust based on base.html padding */
+        max-width: 800px; margin: 0 auto; /* Center like Claude */
+    }
+    #chat-window {
+        flex-grow: 1; overflow-y: auto; margin-bottom: 1.5rem; /* mb-6 */
+        padding-right: 1rem; /* Space for scrollbar */
+        scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    #chat-window p { max-width: 85%; } /* Limit bubble width */
+    #chat-window p span { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
+    .chat-input-area { position: relative; }
+    .suggestion-button {
+       @apply inline-flex items-center px-3 py-1 border border-gray-600 rounded-full text-xs font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700/70 transition-colors no-underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-main">
+    <div id="chat-window" class="space-y-4">
+         {% if not current_chat_messages %}
+        <div class="flex justify-center my-10">
+            <div class="text-center">
+                <svg class="mx-auto h-12 w-auto text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                <h2 class="mt-4 text-3xl font-bold text-white">Hi {{ patient.name }}!</h2>
+                <p class="text-lg text-gray-400">How can I help you today?</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for chat in current_chat_messages %}
+            {% if chat.sender == 'user' %}
+                <p class="flex justify-end"><span class="inline-block p-3 rounded-lg bg-blue-600 text-white text-left">{{ chat.message }}</span></p>
+            {% else %}
+                <p class="flex justify-start"><span class="inline-block p-3 rounded-lg bg-gray-700 text-gray-200"><strong class="block text-xs text-cyan-400 mb-1">AI:</strong> {{ chat.message | replace('\n', '<br>') | safe }}</span></p>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-3 mb-4">
+        <a href="{{ url_for('main.diet_advisor') }}" class="suggestion-button">🌿 Diet Advisor</a>
+        <a href="{{ url_for('main.scanner') }}" class="suggestion-button"><i class="fas fa-barcode mr-1"></i> Ingredient Scanner</a>
+        <a href="{{ url_for('main.book_appointment') }}" class="suggestion-button"><i class="fas fa-calendar-plus mr-1"></i> Appointments</a>
+        <a href="{{ url_for('main.medical_records') }}" class="suggestion-button"><i class="fas fa-file-medical mr-1"></i> My Records</a>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" class="form-control-glass w-full px-5 py-4 pr-16 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none text-base" placeholder="Ask your question here...">
+        <button id="send-btn" class="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-gray-400 hover:text-cyan-400 transition-colors">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {# JavaScript code for sendMessage remains the same #}
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+    
+        async function sendMessage() {
+            // ... Poora sendMessage function waise hi rahega ...
+             const message = chatInput.value.trim();
+            if (message === '') return;
+    
+            // Display User's Message
+            const userPara = document.createElement('p');
+            userPara.className = 'flex justify-end';
+            userPara.innerHTML = `<span class="inline-block p-3 rounded-lg bg-blue-600 text-white text-left">${message}</span>`;
+            chatWindow.appendChild(userPara);
+    
+            chatInput.value = '';
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+            // Display AI Loading Message
+            const loadingPara = document.createElement('p');
+            loadingPara.className = 'flex justify-start';
+            loadingPara.innerHTML = `<span class="inline-block p-3 rounded-lg bg-gray-700 text-gray-200"><strong class="block text-xs text-cyan-400 mb-1">AI:</strong> Thinking...</span>`;
+            chatWindow.appendChild(loadingPara);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+            try {
+                const response = await fetch("{{ url_for('main.chat_api') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: "{{ session.get('current_chat_session_id') }}"
+                    })
+                });
+    
+                if (!response.ok) {
+                    let errorMessage = `Network error (${response.status})`;
+                    try { const errorData = await response.json(); errorMessage = errorData.message || errorData.error || errorMessage; } catch (e) {}
+                    throw new Error(errorMessage);
+                }
+                const data = await response.json();
+                // Replace newlines in AI response with <br> for HTML display
+                const aiReply = data.reply.trim().replace('[ADVICE]', '').trim().replace(/\n/g, '<br>'); 
+    
+                loadingPara.innerHTML = `<span class="inline-block p-3 rounded-lg bg-gray-700 text-gray-200"><strong class="block text-xs text-cyan-400 mb-1">AI:</strong> ${aiReply}</span>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+                // --- Reload sidebar if it was the first message ---
+                // No longer needed here as history is in base.html now
+    
+            } catch (error) {
+                console.error('Error in sendMessage:', error);
+                loadingPara.innerHTML = `<span class="inline-block p-3 rounded-lg bg-red-800 text-red-200"><strong class="block text-xs text-red-300 mb-1">AI:</strong> Sorry, an error occurred. (${error.message})</span>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+        }
+    
+        if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+        if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    </script>
+{% endblock %}
